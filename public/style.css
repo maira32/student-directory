@@ -18,9 +18,11 @@
 }
 
 body {
+    background: linear-gradient(135deg, #f4f7f6 0%, #e2e8f0 100%);
     background-color: var(--bg);
     color: var(--text);
     padding: 2rem 1rem;
+    min-height: 100vh;
 }
 
 .wrapper {
@@ -36,6 +38,10 @@ body {
     margin-bottom: 2rem;
     text-align: left;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center; /* This perfectly centers the text and logo vertically */
+    justify-content: flex-left; /* Keeps everything pinned to the left */
+    gap: 15px;
 }
 
 .classic-header h2 {
@@ -44,12 +50,25 @@ body {
     margin: 0; /* This keeps it perfectly centered inside the blue box */
 }
 
+.header-icon {
+    font-size: 2rem;
+}
+
+/* Styling for an actual image logo (when you add one) */
+.header-logo {
+    height: 40px; /* Forces the logo to fit nicely inside the header */
+    width: auto;
+    object-fit: contain;
+}
+
 .panel {
     background: var(--surface);
     padding: 1.5rem;
     border-radius: 8px;
     border: 1px solid var(--border);
     margin-bottom: 2rem;
+    border: none; /* Remove the hard border */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
 }
 
 .form-row {
@@ -256,7 +275,10 @@ input:focus, select:focus {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    border: none; /* Remove the hard border */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
 }
+
 
 .stat-card.warn {
     border-color: var(--warning);
@@ -312,7 +334,6 @@ input:focus, select:focus {
     margin: 0.5rem 0 1rem;
 }
 
-/* record card now has two buttons stacked instead of one */
 .card-actions {
     display: flex;
     flex-direction: column;
@@ -335,9 +356,13 @@ input:focus, select:focus {
     color: white;
 }
 
-/* on small screens, stack stat cards 2 per row instead of 4 */
 @media (max-width: 700px) {
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+}
+
+#addView .panel, #listView .panel {
+    border-top: 4px solid var(--accent);
+    border-radius: 8px 8px 8px 8px; 
 }
