@@ -4,7 +4,7 @@ const path = require('path');
 const app = express();
 
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 const dataFile = path.join(__dirname, 'data.json');
 
@@ -50,6 +50,10 @@ app.delete('/api/students/:id', (req, res) => {
     students = students.filter(s => s.id !== parseInt(req.params.id));
     writeData(students);
     res.json({ success: true });
+});
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(3000, () => console.log('Server active on port 3000'));
