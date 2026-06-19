@@ -1,54 +1,6 @@
 [
   {
-    "id": 2,
-    "name": "maira",
-    "email": "maira@gmail.com",
-    "phone": "03200000000",
-    "major": "Information Technology",
-    "address": "lahore"
-  },
-  {
-    "id": 4,
-    "name": "ahmed",
-    "email": "ahmed@gmail.com",
-    "phone": "03200000000",
-    "major": "Computer Science",
-    "address": "karachi"
-  },
-  {
-    "id": 5,
-    "name": "sara",
-    "email": "sara@gmail.com",
-    "phone": "03200000000",
-    "major": "Computer Science",
-    "address": "peshawar"
-  },
-  {
-    "id": 6,
-    "name": "mohsin",
-    "email": "mo@gmail.com",
-    "phone": "03200000000",
-    "major": "Computer Science",
-    "address": "multan"
-  },
-  {
-    "id": 7,
-    "name": "mohid",
-    "email": "mohid@gmail.com",
-    "phone": "03200000000",
-    "major": "Information Technology",
-    "address": "karachi"
-  },
-  {
-    "id": 8,
-    "name": "maira",
-    "email": "mairatahir3@gmail.com",
-    "phone": "03204578800",
-    "major": "Information Technology",
-    "address": "lahore"
-  },
-  {
-    "id": 9,
+    "id": 1,
     "name": "maira",
     "email": "maira@gmail.com",
     "phone": "03204578800",

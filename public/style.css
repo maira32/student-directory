@@ -5,6 +5,8 @@
     --text-light: #64748b;
     --accent: #0284c7;
     --danger: #ef4444;
+    --success: #10b981;
+    --warning: #f59e0b;
     --border: #e2e8f0;
 }
 
@@ -235,5 +237,107 @@ input:focus, select:focus {
     to {
         opacity: 1;
         transform: translateX(0);
+    }
+}
+
+/* --- Dashboard --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.stat-card.warn {
+    border-color: var(--warning);
+    background: #fffbeb;
+}
+
+.stat-icon {
+    font-size: 1.75rem;
+}
+
+.stat-label {
+    color: var(--text-light);
+    font-size: 0.8rem;
+    margin-bottom: 0.15rem;
+}
+
+.stat-card h3 {
+    font-size: 1.5rem;
+}
+
+.panel-title {
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.big-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--danger);
+    margin-bottom: 0.25rem;
+}
+
+.panel-sub {
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+
+.breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.breakdown-row:last-child {
+    border-bottom: none;
+}
+
+/* small note under the mess/dues fields in the add form */
+.form-hint {
+    color: var(--text-light);
+    font-size: 0.8rem;
+    margin: 0.5rem 0 1rem;
+}
+
+/* record card now has two buttons stacked instead of one */
+.card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+.btn-secondary:hover {
+    background: var(--accent);
+    color: white;
+}
+
+/* on small screens, stack stat cards 2 per row instead of 4 */
+@media (max-width: 700px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
