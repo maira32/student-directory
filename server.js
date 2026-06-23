@@ -7,6 +7,17 @@ const jwt = require('jsonwebtoken');
 
 dotenv.config();
 
+const cors = require('cors');
+
+app.use(cors({
+    origin: [
+        'http://localhost:3000',
+        'http://localhost:5500',   // if you use Live Server
+        'https://https://student-directory-nu.vercel.app/',  // ← replace with your actual URL
+    ],
+    credentials: true
+}));
+
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -155,3 +166,48 @@ if (require.main === module) {
 }
 
 module.exports = app;
+
+// TOGGLE DUES
+app.patch('/api/students/:id/dues', verifyToken, async (req, res) => {
+    try {
+        await connectToDatabase();
+        const student = await Student.findOne({ 
+            _id: req.params.id, 
+            ownerId: req.ownerId  // security: can't touch other owner's residents
+        });
+        if (!student) return res.status(404).json({ error: 'Resident not found' });
+        
+        student.duesStatus = student.duesStatus === 'Paid' ? 'Pending' : 'Paid';
+        await student.save();
+        res.json(student);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// DELETE RESIDENT
+app.delete('/api/students/:id', verifyToken, async (req, res) => {
+    try {
+        await connectToDatabase();
+        const deleted = await Student.findOneAndDelete({ 
+            _id: req.params.id, 
+            ownerId: req.ownerId  // security: can't delete other owner's residents
+        });
+        if (!deleted) return res.status(404).json({ error: 'Resident not found' });
+        res.json({ message: 'Resident checked out successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/health', async (req, res) => {
+    const dbState = ['disconnected','connected','connecting','disconnecting'];
+    res.json({
+        status: 'ok',
+        mongoUriSet: !!process.env.MONGODB_URI,
+        jwtSecretSet: !!process.env.JWT_SECRET,
+        dbState: dbState[mongoose.connection.readyState],
+        nodeEnv: process.env.NODE_ENV,
+        time: new Date().toISOString()
+    });
+});
