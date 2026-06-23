@@ -4,82 +4,32 @@ const dotenv = require('dotenv');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const cors = require('cors');
 
 dotenv.config();
 
-console.log("Checking Environment Variables...");
-console.log("MONGODB_URI exists:", !!process.env.MONGODB_URI);
-console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
-
-if (!process.env.MONGODB_URI) {
-    throw new Error("CRITICAL: MONGODB_URI is missing in Vercel!");
-}
-
-const cors = require('cors');
-
-
+// 1. SETUP EXPRESS & MIDDLEWARE
 const app = express();
-
-app.use(cors({
-    origin: '*', // Allows any origin to talk to your API
-    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: true
-}));
-
-// TOGGLE DUES
-app.patch('/api/students/:id/dues', verifyToken, async (req, res) => {
-    try {
-        await connectToDatabase();
-        const student = await Student.findOne({ 
-            _id: req.params.id, 
-            ownerId: req.ownerId  // security: can't touch other owner's residents
-        });
-        if (!student) return res.status(404).json({ error: 'Resident not found' });
-        
-        student.duesStatus = student.duesStatus === 'Paid' ? 'Pending' : 'Paid';
-        await student.save();
-        res.json(student);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// DELETE RESIDENT
-app.delete('/api/students/:id', verifyToken, async (req, res) => {
-    try {
-        await connectToDatabase();
-        const deleted = await Student.findOneAndDelete({ 
-            _id: req.params.id, 
-            ownerId: req.ownerId  // security: can't delete other owner's residents
-        });
-        if (!deleted) return res.status(404).json({ error: 'Resident not found' });
-        res.json({ message: 'Resident checked out successfully' });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-app.get('/api/health', async (req, res) => {
-    const dbState = ['disconnected','connected','connecting','disconnecting'];
-    res.json({
-        status: 'ok',
-        mongoUriSet: !!process.env.MONGODB_URI,
-        jwtSecretSet: !!process.env.JWT_SECRET,
-        dbState: dbState[mongoose.connection.readyState],
-        nodeEnv: process.env.NODE_ENV,
-        time: new Date().toISOString()
-    });
-});
-
+app.use(cors({ origin: '*', methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'], credentials: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ======================================================
-//    SERVERLESS MONGODB CONNECTION ENGINE
-// ======================================================
+// 2. SECURITY MIDDLEWARE (Defined BEFORE routes)
+const verifyToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; 
+    if (!token) return res.status(401).json({ error: 'Access Denied' });
+
+    jwt.verify(token, process.env.JWT_SECRET || 'fallback', (err, decoded) => {
+        if (err) return res.status(403).json({ error: 'Invalid token' });
+        req.ownerId = decoded.id; 
+        next(); 
+    });
+};
+
+// 3. SERVERLESS MONGODB CONNECTION ENGINE
 async function connectToDatabase() {
     if (mongoose.connection.readyState >= 1) return;
-    
     await mongoose.connect(process.env.MONGODB_URI, {
         family: 4, 
         serverSelectionTimeoutMS: 5000,
@@ -87,9 +37,7 @@ async function connectToDatabase() {
     });
 }
 
-// ======================================================
-//                 BLUEPRINTS (SCHEMAS)
-// ======================================================
+// 4. BLUEPRINTS (SCHEMAS)
 const ownerSchema = new mongoose.Schema({
     hostelName: { type: String, required: true },
     ownerName: { type: String, required: true },
@@ -101,9 +49,7 @@ ownerSchema.set('toJSON', {
     virtuals: true,
     transform: (doc, ret) => {
         ret.id = ret._id;
-        delete ret.password;
-        delete ret._id;
-        delete ret.__v;
+        delete ret.password; delete ret._id; delete ret.__v;
     }
 });
 const Owner = mongoose.model('Owner', ownerSchema);
@@ -125,32 +71,12 @@ const studentSchema = new mongoose.Schema({
 studentSchema.set('toJSON', {
     virtuals: true,
     transform: (doc, ret) => {
-        ret.id = ret._id;
-        delete ret._id;
-        delete ret.__v;
+        ret.id = ret._id; delete ret._id; delete ret.__v;
     }
 });
 const Student = mongoose.model('Student', studentSchema);
 
-// ======================================================
-//                 SECURITY MIDDLEWARE
-// ======================================================
-const verifyToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; 
-    if (!token) return res.status(401).json({ error: 'Access Denied' });
-
-    jwt.verify(token, process.env.JWT_SECRET || 'fallback', (err, decoded) => {
-        if (err) return res.status(403).json({ error: 'Invalid token' });
-        req.ownerId = decoded.id; 
-        next(); 
-    });
-};
-
-// ======================================================
-//                 API ROUTES
-// ======================================================
-
+// 5. API ROUTES (Now safe to use verifyToken)
 app.post('/api/auth/register', async (req, res) => {
     try {
         await connectToDatabase();
@@ -158,18 +84,14 @@ app.post('/api/auth/register', async (req, res) => {
         const existing = await Owner.findOne({ email });
         if (existing) return res.status(400).json({ error: 'Email already registered' });
 
-        // Change your bcrypt line to this:
         const saltRounds = process.env.NODE_ENV === 'production' ? 8 : 10;
         const salt = await bcrypt.genSalt(saltRounds);
         const hashedPassword = await bcrypt.hash(password, salt);
         const newOwner = new Owner({ hostelName, ownerName, email, password: hashedPassword });
         const saved = await newOwner.save();
         const token = jwt.sign({ id: saved._id }, process.env.JWT_SECRET || 'fallback', { expiresIn: '7d' });
-
         res.status(201).json({ owner: saved, token });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.post('/api/auth/login', async (req, res) => {
@@ -182,9 +104,7 @@ app.post('/api/auth/login', async (req, res) => {
         if (!isMatch) return res.status(400).json({ error: 'Invalid password' });
         const token = jwt.sign({ id: owner._id }, process.env.JWT_SECRET || 'fallback', { expiresIn: '7d' });
         res.json({ owner, token });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.get('/api/students', verifyToken, async (req, res) => {
@@ -192,9 +112,7 @@ app.get('/api/students', verifyToken, async (req, res) => {
         await connectToDatabase();
         const students = await Student.find({ ownerId: req.ownerId }).sort({ createdAt: -1 });
         res.json(students);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.post('/api/students', verifyToken, async (req, res) => {
@@ -203,19 +121,38 @@ app.post('/api/students', verifyToken, async (req, res) => {
         const newStudent = new Student({ ...req.body, ownerId: req.ownerId });
         const saved = await newStudent.save();
         res.status(201).json(saved);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Catch-all for SPA
+app.patch('/api/students/:id/dues', verifyToken, async (req, res) => {
+    try {
+        await connectToDatabase();
+        const student = await Student.findOne({ _id: req.params.id, ownerId: req.ownerId });
+        if (!student) return res.status(404).json({ error: 'Resident not found' });
+        student.duesStatus = student.duesStatus === 'Paid' ? 'Pending' : 'Paid';
+        await student.save();
+        res.json(student);
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete('/api/students/:id', verifyToken, async (req, res) => {
+    try {
+        await connectToDatabase();
+        const deleted = await Student.findOneAndDelete({ _id: req.params.id, ownerId: req.ownerId });
+        if (!deleted) return res.status(404).json({ error: 'Resident not found' });
+        res.json({ message: 'Resident checked out successfully' });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.get('/api/health', async (req, res) => {
+    res.json({ status: 'ok', time: new Date().toISOString() });
+});
+
 app.use((req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-// Entrypoint
 if (require.main === module) {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => console.log(`🚀 Live on http://localhost:${PORT}`));
 }
 
 module.exports = app;
-
