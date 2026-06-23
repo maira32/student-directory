@@ -3,166 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HostelHub</title>
-<link rel="icon" type="image/png" href="/favicon.png?v=3">
+    <title>HostelHub SaaS</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="wrapper">
-        <header class="classic-header">
-            <img src="logo.png" alt="HostelHub Logo" class="header-logo">
-            <h2>HostelHub</h2>
-            </header>
 
-        <nav class="top-nav">
-            <div class="nav-buttons">
-                <button id="btnShowDashboard" class="nav-btn active">Dashboard</button>
-                <button id="btnShowAdd" class="nav-btn">Add New Student</button>
-                <button id="btnShowList" class="nav-btn">View All Students</button>
+    <!-- ==========================================
+         1. SPLIT-SCREEN AUTHENTICATION PORTAL
+    ========================================== -->
+    <main id="authView" class="auth-split-container">
+        <div class="auth-form-column">
+            <div class="auth-form-wrapper">
+                <div class="brand-logo-container" style="text-align: center; margin-bottom: 2rem;">
+                    <img src="/logo.png" alt="HostelHub Logo" style="max-width: 120px; height: auto;">
+                </div>
+
+                <!-- LOGIN FORM -->
+                <div id="loginFormContainer">
+                    <div class="auth-headings">
+                        <h3>Welcome to HostelHub!</h3>
+                        <p class="subtitle">Keep your resident data safe</p>
+                    </div>
+
+                    <form id="loginForm">
+                        <div class="input-group-pill">
+                            <span class="pill-label">Email</span>
+                            <input type="email" id="loginEmail" required placeholder="example@hostel.com">
+                        </div>
+                        <div class="input-group-pill">
+                            <span class="pill-label">Password</span>
+                            <div class="input-with-icon" style="display: flex; align-items: center;">
+                                <input type="password" id="loginPassword" required placeholder="••••••••" style="flex: 1;">
+                                <button type="button" onclick="togglePassword('loginPassword', this)" style="background: none; border: none; font-size: 0.85rem; font-weight: 700; color: #2563eb; cursor: pointer; padding: 0 0.5rem;">Show</button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-pill">LOGIN</button>
+                    </form>
+
+                    <p class="auth-footer-text" style="margin-top: 2rem;">
+                        Don't have an account? <a href="#" onclick="toggleAuthMode('register')">Register!</a>
+                    </p>
+                </div>
+
+                <!-- REGISTER FORM -->
+                <div id="registerFormContainer" class="hidden">
+                    <div class="auth-headings">
+                        <h3>Create your Empire!</h3>
+                        <p class="subtitle">Secure multi-hostel management</p>
+                    </div>
+
+                    <form id="registerForm">
+                        <div class="input-group-pill">
+                            <span class="pill-label">Hostel Name</span>
+                            <input type="text" id="regHostelName" required placeholder="Greenwood Boys">
+                        </div>
+                        <div class="input-group-pill">
+                            <span class="pill-label">Owner Full Name</span>
+                            <input type="text" id="regOwnerName" required placeholder="Ali Raza">
+                        </div>
+                        <div class="input-group-pill">
+                            <span class="pill-label">Email</span>
+                            <input type="email" id="regEmail" required placeholder="example@hostel.com">
+                        </div>
+                        <div class="input-group-pill">
+                            <span class="pill-label">Password</span>
+                            <div class="input-with-icon" style="display: flex; align-items: center;">
+                                <input type="password" id="regPassword" required placeholder="••••••••" style="flex: 1;">
+                                <button type="button" onclick="togglePassword('regPassword', this)" style="background: none; border: none; font-size: 0.85rem; font-weight: 700; color: #2563eb; cursor: pointer; padding: 0 0.5rem;">Show</button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-pill">REGISTER</button>
+                    </form>
+
+                    <p class="auth-footer-text" style="margin-top: 2rem;">
+                        Already have an account? <a href="#" onclick="toggleAuthMode('login')">Login!</a>
+                    </p>
+                </div>
             </div>
-            <div class="nav-search">
-                <input type="text" id="searchInput" placeholder="🔍 Search records...">
+        </div>
+
+        <div class="auth-visual-column">
+            <div class="visual-content">
+                <h2 class="visual-title">HostelHub</h2>
+                <p class="visual-subtitle">The next-generation cloud operating system for student housing and dormitory management.</p>
+            </div>
+        </div>
+    </main>
+
+
+    <!-- ==========================================
+         2. PROFESSIONAL SaaS ADMIN CONSOLE
+    ========================================== -->
+    <div id="appContainer" class="hidden admin-console-layout">
+        
+        <!-- EXECUTIVE TOP NAV (Properly locked in dark navy) -->
+        <header class="admin-topbar">
+            <div class="topbar-left">
+                <img src="/logo.png" alt="HostelHub Logo" class="topbar-logo">
+                <div id="userProfile" class="topbar-branding">
+                    <h1 id="ownerHostelLabel" class="impressive-hostel-title"> Greenwood Boys Hostel</h1>
+                    <p class="impressive-owner-subtitle">Manager: <strong id="ownerNameLabel">Ali Raza</strong></p>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <button onclick="logout()" class="btn-proper-logout"> Logout </button>
+            </div>
+        </header>
+
+        <!-- SECONDARY SUB-NAV -->
+        <nav class="admin-subnav">
+            <div class="subnav-container">
+                <div class="nav-tabs-group">
+                    <button id="btnShowDashboard" class="subnav-tab active">📊 Dashboard Overview</button>
+                    <button id="btnShowAdd" class="subnav-tab">➕ Add New Resident</button>
+                    <button id="btnShowList" class="subnav-tab">👥 Manage Residents</button>
+                </div>
+                <div class="subnav-search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Search by resident name or room...">
+                </div>
             </div>
         </nav>
 
-        <main>
-            <!-- Dashboard view: quick overview of the whole hostel at a glance -->
+        <!-- MAIN STAGE (Contains all 3 App screens) -->
+        <main class="admin-main-stage">
+
+            <!-- SCREEN A: RESTORED PRO DASHBOARD -->
             <div id="dashboardView">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <span class="stat-icon">🧑‍🎓</span>
-                        <div>
-                            <p class="stat-label">Total Residents</p>
-                            <h3 id="statTotal">0</h3>
+                <div class="metric-grid-4">
+                    <div class="metric-card">
+                        <span class="metric-icon">🧑‍🎓</span>
+                        <div class="metric-data">
+                            <span class="metric-label">Total Residents</span>
+                            <h3 id="statTotal">1</h3>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <span class="stat-icon">🟢</span>
-                        <div>
-                            <p class="stat-label">Allocated Rooms</p>
-                            <h3 id="statAllocated">0</h3>
+                    <div class="metric-card">
+                        <span class="metric-icon">🟢</span>
+                        <div class="metric-data">
+                            <span class="metric-label">Allocated Rooms</span>
+                            <h3 id="statAllocated">1</h3>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <span class="stat-icon">🍽️</span>
-                        <div>
-                            <p class="stat-label">On a Mess Plan</p>
-                            <h3 id="statMess">0</h3>
+                    <div class="metric-card">
+                        <span class="metric-icon">🍽️</span>
+                        <div class="metric-data">
+                            <span class="metric-label">On a Mess Plan</span>
+                            <h3 id="statMessCount">1</h3>
                         </div>
                     </div>
-                    <div class="stat-card warn">
-                        <span class="stat-icon">💰</span>
-                        <div>
-                            <p class="stat-label">Dues Pending</p>
+                    <div class="metric-card bg-cream">
+                        <span class="metric-icon">💰</span>
+                        <div class="metric-data">
+                            <span class="metric-label">Dues Pending</span>
                             <h3 id="statDuesCount">0</h3>
                         </div>
                     </div>
                 </div>
 
-                <div class="panel">
-                    <h3 class="panel-title">Pending Dues Total</h3>
-                    <p class="big-number" id="statDuesTotal">Rs. 0</p>
-                    <p class="panel-sub">Total amount still owed across all residents who haven't paid yet.</p>
+                <div class="dashboard-panel">
+                    <h4 class="panel-title">Pending Dues Total</h4>
+                    <div id="statDuesTotal" class="dues-big-amount">Rs. 0</div>
+                    <p class="panel-helper">Total amount still owed across all residents who haven't paid yet.</p>
                 </div>
 
-                <div class="panel">
-                    <h3 class="panel-title">Occupancy Breakdown</h3>
-                    <div class="breakdown-row">
-                        <span>🟢 Allocated (Active)</span>
-                        <strong id="bdAllocated">0</strong>
-                    </div>
-                    <div class="breakdown-row">
-                        <span>🟡 Pending Arrival</span>
-                        <strong id="bdPending">0</strong>
-                    </div>
-                    <div class="breakdown-row">
-                        <span>🔴 Vacating Soon</span>
-                        <strong id="bdVacating">0</strong>
+                <div class="dashboard-panel">
+                    <h4 class="panel-title">Occupancy Breakdown</h4>
+                    <div class="breakdown-list">
+                        <div class="breakdown-row">
+                            <span>🟢 Allocated (Active)</span>
+                            <strong id="statActiveCount">1</strong>
+                        </div>
+                        <div class="breakdown-row">
+                            <span>🟡 Pending Arrival</span>
+                            <strong id="statPendingCount">0</strong>
+                        </div>
+                        <div class="breakdown-row">
+                            <span>🔴 Vacating Soon</span>
+                            <strong id="statVacatingCount">0</strong>
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <!-- SCREEN B: RESTORED "ADD RESIDENT" FORM -->
             <div id="addView" class="hidden">
-                <form id="recordForm">
-                        <div class="form-row">
-                            <div class="input-group">
-                                <label>Resident Name</label>
-                                <input type="text" id="name" required>
+                <div class="admin-form-panel">
+                    <h2 class="panel-header">Enroll New Resident</h2>
+                    <form id="recordForm">
+                        <div class="form-grid-2">
+                            <div class="input-field">
+                                <label>Full Name</label>
+                                <input type="text" id="name" required placeholder="e.g. Usman Khan">
                             </div>
-                            <div class="input-group">
-                                <label>Email Address</label>
-                                <input type="email" id="email" required>
+                            <div class="input-field">
+                                <label>Room Number</label>
+                                <input type="text" id="room" required placeholder="e.g. A-102">
                             </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="input-group">
+                            <div class="input-field">
                                 <label>Phone Number</label>
-                                <input type="tel" id="phone" required>
+                                <input type="text" id="phone" required placeholder="03xx-xxxxxxx">
                             </div>
-                            <div class="input-group">
-                                <label>Department / Major</label>
-                                <select id="major" required>
-                                    <option value="" disabled selected>Select Major...</option>
-                                    <option value="Computer Science">Computer Science</option>
-                                    <option value="Software Engineering">Software Engineering</option>
-                                    <option value="Information Technology">Information Technology</option>
-                                    <option value="Business Administration">Business Administration</option>
-                                </select>
+                            <div class="input-field">
+                                <label>Email Address</label>
+                                <input type="email" id="email" required placeholder="usman@student.edu">
                             </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label>Home Physical Address</label>
-                            <input type="text" id="address" required>
-                        </div>
-
-                        <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid var(--border);">
-
-                        <div class="form-row">
-                            <div class="input-group">
-                                <label>Hostel Room Allocation</label>
-                                <input type="text" id="room" placeholder="e.g., Iqbal Block A-10" required>
+                            <div class="input-field">
+                                <label>Academic Major / Dept</label>
+                                <input type="text" id="major" placeholder="BS Computer Science">
                             </div>
-                            <div class="input-group">
+                            <div class="input-field">
                                 <label>Occupancy Status</label>
-                                <select id="status" required>
-                                    <option value="" disabled selected>Select Status...</option>
-                                    <option value="Allocated">🟢 Allocated (Active)</option>
-                                    <option value="Pending">🟡 Pending Arrival</option>
-                                    <option value="Vacating">🔴 Vacating Soon</option>
+                                <select id="status">
+                                    <option value="Allocated">Allocated (Active)</option>
+                                    <option value="Pending">Pending Arrival</option>
                                 </select>
                             </div>
-                        </div>
-
-                        <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid var(--border);">
-
-                        <!-- new stuff: mess and dues, since every hostel needs to track this -->
-                        <div class="form-row">
-                            <div class="input-group">
-                                <label>Mess Plan</label>
-                                <select id="messPlan" required>
-                                    <option value="" disabled selected>Select Mess Plan...</option>
-                                    <option value="Full Mess">🍛 Full Mess</option>
-                                    <option value="Veg Only">🥗 Veg Only</option>
-                                    <option value="No Mess">🚫 No Mess</option>
+                            <div class="input-field">
+                                <label>Mess / Food Plan</label>
+                                <select id="messPlan">
+                                    <option value="Full Mess">Full Mess (3 Meals)</option>
+                                    <option value="Lunch + Dinner">Lunch + Dinner only</option>
+                                    <option value="No Mess">No Mess</option>
                                 </select>
                             </div>
-                            <div class="input-group">
+                            <div class="input-field">
                                 <label>Monthly Dues (Rs.)</label>
-                                <input type="number" id="duesAmount" min="0" placeholder="e.g., 5000">
+                                <input type="number" id="duesAmount" required placeholder="18500">
                             </div>
                         </div>
-                        <p class="form-hint">New residents start off with dues status "Pending" — you can mark them paid later from the list view.</p>
-
-                        <button type="submit" class="btn-submit">Save Record</button>
+                        <div class="input-field" style="margin-top: 1.5rem;">
+                            <label>Home / Emergency Address</label>
+                            <input type="text" id="address" placeholder="House 42, Street 5, Gulberg, Lahore">
+                        </div>
+                        <button type="submit" class="btn-save-resident"> Save </button>
                     </form>
+                </div>
             </div>
 
+            <!-- SCREEN C: RESTORED RESIDENT ROSTER GRID -->
             <div id="listView" class="hidden">
-                <div id="dataGrid"></div>
+                <div id="dataGrid" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- JS injects resident cards here -->
+                </div>
             </div>
+
         </main>
+
     </div>
 
     <div id="toastContainer"></div>

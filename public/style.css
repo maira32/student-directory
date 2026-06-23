@@ -366,3 +366,879 @@ input:focus, select:focus {
     border-top: 4px solid var(--accent);
     border-radius: 8px 8px 8px 8px; 
 }
+
+/* ======================================================
+   SPLIT-SCREEN AUTHENTICATION LAYOUT
+====================================================== */
+
+.auth-split-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100vw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #ffffff;
+    z-index: 1000;
+}
+
+/* LEFT COLUMN: Clean White Form Area */
+.auth-form-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.auth-form-wrapper {
+    width: 100%;
+    max-width: 400px;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 3rem;
+}
+
+.brand-logo .logo-icon {
+    font-size: 1.8rem;
+}
+
+.brand-logo .logo-text {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #1a202c;
+    letter-spacing: -0.5px;
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.2rem;
+}
+
+.auth-form-wrapper h3 {
+    font-size: 2rem;
+    color: #1a202c;
+    margin-bottom: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-icon input {
+    width: 100%;
+    padding-right: 2.5rem;
+}
+
+.input-icon {
+    position: absolute;
+    right: 1rem;
+    color: #a0aec0;
+    font-size: 1.1rem;
+    pointer-events: none;
+}
+
+.btn-primary {
+    width: 100%;
+    background: #2563eb;
+    color: white;
+    padding: 0.85rem;
+    border-radius: 6px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    transition: all 0.2s ease;
+    margin-top: 0.5rem;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 2rem 0;
+    color: #cbd5e0;
+    font-size: 0.85rem;
+}
+
+.divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.divider span {
+    padding: 0 1rem;
+    color: #a0aec0;
+}
+
+.social-logins {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+
+.btn-social {
+    flex: 1;
+    padding: 0.65rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: white;
+    font-weight: bold;
+    color: #4a5568;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-social:hover {
+    background: #f8fafc;
+}
+
+.auth-footer-text {
+    font-size: 0.95rem;
+    color: #718096;
+}
+
+.auth-footer-text a {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-footer-text a:hover {
+    text-decoration: underline;
+}
+
+/* RIGHT COLUMN: Gorgeous Fluid Art & Logo Showcase */
+.auth-visual-column {
+    flex: 1;
+    background: linear-gradient(135deg, rgba(37,99,235,0.9) 0%, rgba(147,51,234,0.9) 100%),
+                url('https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=1200&q=80');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 4rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.visual-content {
+    max-width: 500px;
+    z-index: 2;
+}
+
+.visual-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    letter-spacing: -1px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.badge-saas {
+    font-size: 1rem;
+    background: #ec4899;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.visual-subtitle {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Responsive Collapse for Mobile */
+@media (max-width: 768px) {
+    .auth-split-container {
+        flex-direction: column;
+    }
+    .auth-visual-column {
+        display: none; /* Hide art panel on small screens to prioritize forms */
+    }
+}
+
+/* ======================================================
+   MODERN PILL INPUTS & BUTTONS
+====================================================== */
+
+.logo-circle {
+    background: #1a202c;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.logo-circle .logo-icon {
+    font-size: 2.2rem;
+}
+
+.auth-headings {
+    margin-bottom: 2.5rem;
+}
+
+.auth-headings h3 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 0.3rem;
+    letter-spacing: -0.5px;
+}
+
+.auth-headings .subtitle {
+    font-size: 0.95rem;
+    color: #a0aec0;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+/* Rounded App-Like Inputs */
+.input-group-pill {
+    background: #f7fafc;
+    border-radius: 20px;
+    padding: 0.5rem 1.2rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.input-group-pill:focus-within {
+    border-color: #cbd5e0;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+}
+
+.pill-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #a0aec0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.input-group-pill input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 0.2rem 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #2d3748;
+    outline: none;
+}
+
+/* Big Rounded Action Button */
+.btn-pill {
+    width: 100%;
+    background: #f59e0b; /* Vibrant Yellow-Amber from your screenshot */
+    color: #1a202c;
+    font-weight: 800;
+    padding: 1.1rem;
+    border-radius: 30px;
+    border: none;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(245, 158, 11, 0.25);
+    margin-top: 1rem;
+    transition: all 0.2s;
+}
+
+.btn-pill:hover {
+    background: #d97706;
+    transform: translateY(-2px);
+}
+
+.forgot-link {
+    text-align: center;
+    margin: 1.5rem 0;
+}
+
+.forgot-link a {
+    color: #f59e0b;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+}
+
+.forgot-link a:hover {
+    text-decoration: underline;
+}
+
+.auth-footer-text {
+    text-align: center;
+    margin-top: 3rem;
+    font-size: 0.95rem;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+.auth-footer-text a {
+    color: #f59e0b;
+    font-weight: 700;
+}
+
+/* ======================================================
+   MOBILE OVERRIDE: Force True App-Like Centering
+====================================================== */
+@media (max-width: 768px) {
+    .auth-split-container {
+        flex-direction: column;
+    }
+    
+    .auth-visual-column {
+        display: none; /* Strip out the artwork completely */
+    }
+
+    .auth-form-column {
+        padding: 1.5rem;
+        justify-content: flex-start;
+        margin-top: 2rem;
+    }
+
+    .auth-form-wrapper {
+        text-align: center; /* Force center alignment for Logo & Headings */
+    }
+
+    .brand-logo {
+        justify-content: center; /* Center the logo circle */
+        margin-bottom: 1.5rem;
+    }
+    
+    .auth-headings h3 {
+        font-size: 1.6rem;
+    }
+}
+
+/* ======================================================
+   FULL-BLEED PROFESSIONAL ADMIN CONSOLE
+====================================================== */
+
+.admin-console-layout {
+    width: 100vw;
+    min-height: 100vh;
+    background: #f1f5f9;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 500;
+}
+
+/* 1. Executive Top Bar */
+.admin-topbar {
+    background: #0f172a; /* Luxurious Deep Slate/Navy */
+    color: white;
+    padding: 0.8rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.topbar-logo {
+    height: 46px;
+    width: auto;
+    object-fit: contain;
+}
+
+.topbar-branding {
+    border-left: 1px solid #334155;
+    padding-left: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.impressive-hostel-title {
+    font-size: 1.45rem; /* Scaled to the sweet spot for 3-word hostel names */
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.1;
+    white-space: nowrap; /* Forces it to stay on one beautiful line */
+}
+
+.impressive-owner-subtitle {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin: 0;
+    padding-top: 0.2rem;
+}
+
+.impressive-owner-subtitle strong {
+    color: #38bdf8; /* Soft vibrant blue accent */
+}
+
+/* Proper Right-Side Logout Button */
+.btn-proper-logout {
+    background: #e11d48;
+    color: white;
+    border: none;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(225, 29, 72, 0.3);
+}
+
+.btn-proper-logout:hover {
+    background: #be123c;
+    transform: scale(1.02);
+}
+
+/* 2. Secondary Navigation Bar */
+.admin-subnav {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0 2.5rem;
+}
+
+.subnav-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-tabs-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.subnav-tab {
+    background: transparent;
+    border: none;
+    padding: 1.2rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #64748b;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.subnav-tab:hover {
+    color: #0f172a;
+}
+
+.subnav-tab.active {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+}
+
+.subnav-search-box {
+    position: relative;
+    width: 320px;
+}
+
+.subnav-search-box input {
+    width: 100%;
+    padding: 0.55rem 1rem 0.55rem 2.5rem;
+    border-radius: 20px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.subnav-search-box input:focus {
+    background: white;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+.subnav-search-box .search-icon {
+    position: absolute;
+    left: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+/* 3. Main Stage Content Area */
+.admin-main-stage {
+    flex: 1;
+    max-width: 1600px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2.5rem;
+}
+
+/* Premium Full-Width Stat Cards */
+.stat-cards-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.premium-stat-card {
+    background: white;
+    padding: 1.8rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0.5rem 0 0 0;
+}
+
+.stat-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    width: 100%;
+}
+
+.bg-blue { background: #3b82f6; }
+.bg-green { background: #10b981; }
+.bg-red { background: #ef4444; }
+
+/* Admin Forms */
+.admin-form-panel {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+}
+
+.panel-header {
+    margin-top: 0;
+    margin-bottom: 2rem;
+    color: #0f172a;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 1rem;
+}
+
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.input-field label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 0.4rem;
+}
+
+.input-field input, .input-field select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.btn-save-resident {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 2rem;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.btn-save-resident:hover {
+    background: #059669;
+}
+
+/* ======================================================
+   RESTORED DASHBOARD STYLING
+====================================================== */
+
+.metric-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.metric-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.metric-card.bg-cream {
+    background: #fef3c7; /* The exact pale warm amber from your screenshot */
+    border-color: #fde68a;
+}
+
+.metric-card.bg-cream .metric-label {
+    color: #b45309;
+}
+
+.metric-icon {
+    font-size: 2.2rem;
+    line-height: 1;
+    user-select: none;
+}
+
+.metric-data {
+    display: flex;
+    flex-direction: column;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-data h3 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0.2rem 0 0 0;
+}
+
+/* Wide Panels */
+.dashboard-panel {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.panel-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 1rem 0;
+}
+
+.dues-big-amount {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #ef4444; /* Clean Coral Red */
+    margin-bottom: 0.4rem;
+}
+
+.panel-helper {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 0;
+}
+
+.breakdown-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    font-size: 0.95rem;
+}
+
+.breakdown-row:last-child {
+    border-bottom: none;
+}
+
+.breakdown-row strong {
+    font-size: 1.1rem;
+    color: #0f172a;
+}
+
+/* ======================================================
+   ADMIN CONSOLE MOBILE OVERRIDE (THE "SaaS PHONE" VIEW)
+====================================================== */
+
+@media (max-width: 768px) {
+    
+    /* 1. Re-index the Executive Top Bar */
+    .admin-topbar {
+        padding: 0.75rem 1rem;
+        gap: 0.5rem;
+    }
+
+    .topbar-logo {
+        height: 32px; /* Scaled down for mobile glass */
+    }
+
+    .topbar-branding {
+        padding-left: 0.75rem;
+    }
+
+    .impressive-hostel-title {
+        font-size: 1.05rem;
+        white-space: normal; /* Allows long hostel names to safely wrap to line 2 */
+    }
+
+    .impressive-owner-subtitle {
+        display: none; /* Hides "Manager: Ali" on phones to save crucial horizontal space */
+    }
+
+    .btn-proper-logout {
+        padding: 0.4rem 0.65rem;
+        font-size: 0.8rem;
+    }
+
+    /* 2. Stack Sub-Nav & Stretch Search */
+    .admin-subnav {
+        padding: 0 1rem;
+    }
+
+    .subnav-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.85rem;
+        padding: 1rem 0;
+    }
+
+    .subnav-search-box {
+        width: 100%; /* Forces search to take 100% width of the phone */
+    }
+
+    .nav-tabs-group {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .subnav-tab {
+        padding: 0.6rem 0.2rem;
+        font-size: 0.8rem;
+        flex: 1;
+        text-align: center;
+    }
+
+    /* 3. Main Stage Padding */
+    .admin-main-stage {
+        padding: 1.25rem 1rem;
+    }
+
+    /* 4. The Magic Trick: Snap 4-Card Grid into a 2x2 Grid */
+    .metric-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .metric-card {
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+
+    .metric-icon {
+        font-size: 1.6rem;
+    }
+
+    .metric-data h3 {
+        font-size: 1.35rem;
+    }
+
+    .dues-big-amount {
+        font-size: 2.1rem;
+    }
+
+    /* 5. Force Add Resident Form into Single-File */
+    .form-grid-2 {
+        grid-template-columns: 1fr; /* Kills the 2-column layout instantly */
+        gap: 1rem;
+    }
+
+    .admin-form-panel {
+        padding: 1.5rem;
+    }
+
+    /* 6. Adapt Roster Cards for Thumb Tapping */
+    .record-card {
+        flex-direction: column;
+        gap: 1.25rem;
+        padding: 1.25rem;
+    }
+
+    .card-actions {
+        width: 100%;
+        flex-direction: row; /* Puts "Mark Paid" and "Checkout" side-by-side */
+    }
+
+    .card-actions button {
+        flex: 1;
+        padding: 0.75rem;
+        font-size: 0.9rem;
+        text-align: center;
+    }
+}
