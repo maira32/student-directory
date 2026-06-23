@@ -1,118 +1,106 @@
+const dns = require('dns');
+dns.setServers(['1.1.1.1', '8.8.8.8']);
 const express = require('express');
-const fs = require('fs');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 const path = require('path');
-const app = express();
 
+// Wake up the .env file
+dotenv.config();
+
+const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const dataFile = path.join(__dirname, 'data.json');
+// 1. CONNECT TO MONGODB
+mongoose.connect(process.env.MONGODB_URI, {
+    family: 4, // <-- THE MAGIC TRICK: Forces Node to use standard IPv4
+    serverSelectionTimeoutMS: 5000
+})
 
-const readData = () => {
-    if (!fs.existsSync(dataFile)) return [];
-    return JSON.parse(fs.readFileSync(dataFile, 'utf8'));
-};
+  .then(() => console.log('🟢 MongoDB Atlas Connected Successfully!'))
+  .catch(err => console.error('🔴 MongoDB Connection Failed:', err));
 
-const writeData = (data) => {
-    fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
-};
+// 2. DEFINE THE BLUEPRINT (Mongoose Schema)
+const studentSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    phone: { type: String, required: true },
+    major: { type: String, required: true },
+    address: { type: String, required: true },
+    room: { type: String, default: 'Unassigned' },
+    status: { type: String, default: 'Pending' },
+    messPlan: { type: String, default: 'No Mess' },
+    duesAmount: { type: Number, default: 0 },
+    duesStatus: { type: String, default: 'Pending' }
+}, { timestamps: true });
 
-// GET all students
-app.get('/api/students', (req, res) => {
-    res.json(readData());
+// Magic trick: MongoDB calls IDs "_id", but your frontend app.js looks for ".id". 
+// This automatically duplicates "_id" into "id" whenever we send data to the browser.
+studentSchema.set('toJSON', {
+    virtuals: true,
+    transform: (doc, ret) => {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+    }
 });
 
-// GET dashboard stats (counts everything up for the dashboard cards)
-app.get('/api/stats', (req, res) => {
-    const students = readData();
+const Student = mongoose.model('Student', studentSchema);
 
-    let allocated = 0;
-    let pendingArrival = 0;
-    let vacating = 0;
-    let duesPendingCount = 0;
-    let duesPendingTotal = 0;
-    let messCount = 0;
+// ==========================================
+//                 API ROUTES
+// ==========================================
 
-    for (const s of students) {
-        if (s.status === 'Allocated') allocated++;
-        if (s.status === 'Pending') pendingArrival++;
-        if (s.status === 'Vacating') vacating++;
-
-        if (s.duesStatus === 'Pending') {
-            duesPendingCount++;
-            duesPendingTotal += Number(s.duesAmount) || 0;
-        }
-
-        if (s.messPlan && s.messPlan !== 'No Mess') messCount++;
+// GET: Fetch all students
+app.get('/api/students', async (req, res) => {
+    try {
+        const students = await Student.find().sort({ createdAt: -1 });
+        res.json(students);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
-
-    res.json({
-        totalResidents: students.length,
-        allocated,
-        pendingArrival,
-        vacating,
-        duesPendingCount,
-        duesPendingTotal,
-        messCount
-    });
 });
 
-// POST add a new student
-app.post('/api/students', (req, res) => {
-    // grabbing all the fields from the form
-    const { name, email, phone, major, address, room, status, duesAmount, messPlan } = req.body;
-
-    // basic validation, all the main fields are required
-    if (!name || !email || !phone || !major || !address || !room || !status || !messPlan) {
-        return res.status(400).json({ error: 'All personal and hostel fields are required' });
+// POST: Create a new student
+app.post('/api/students', async (req, res) => {
+    try {
+        const newStudent = new Student(req.body);
+        const saved = await newStudent.save();
+        res.status(201).json(saved);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
     }
-    if (!email.includes('@') || !email.includes('.')) {
-        return res.status(400).json({ error: 'Invalid email address format' });
-    }
-
-    // dues amount is optional on the form, default to 0 if nothing was typed
-    const parsedDues = duesAmount === undefined || duesAmount === '' ? 0 : Number(duesAmount);
-    if (isNaN(parsedDues) || parsedDues < 0) {
-        return res.status(400).json({ error: 'Dues amount must be a valid positive number' });
-    }
-
-    const students = readData();
-    const newStudent = {
-        id: students.length > 0 ? students[students.length - 1].id + 1 : 1,
-        name, email, phone, major, address, room, status,
-        duesAmount: parsedDues,
-        duesStatus: 'Pending', // new resident, dues start as pending until they pay
-        messPlan
-    };
-
-    students.push(newStudent);
-    writeData(students);
-    res.status(201).json(newStudent);
 });
 
-// PATCH toggle a student's dues between Paid / Pending (the "mark as paid" button)
-app.patch('/api/students/:id/dues', (req, res) => {
-    const students = readData();
-    const student = students.find(s => s.id === parseInt(req.params.id));
+// PATCH: Toggle Dues (Paid <-> Pending)
+app.patch('/api/students/:id/dues', async (req, res) => {
+    try {
+        const student = await Student.findById(req.params.id);
+        if (!student) return res.status(404).json({ error: 'Student not found' });
 
-    if (!student) {
-        return res.status(404).json({ error: 'Student not found' });
+        student.duesStatus = student.duesStatus === 'Paid' ? 'Pending' : 'Paid';
+        await student.save();
+        res.json(student);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
-
-    student.duesStatus = student.duesStatus === 'Paid' ? 'Pending' : 'Paid';
-    writeData(students);
-    res.json(student);
 });
 
-app.delete('/api/students/:id', (req, res) => {
-    let students = readData();
-    students = students.filter(s => s.id !== parseInt(req.params.id));
-    writeData(students);
-    res.json({ success: true });
+// DELETE: Remove student
+app.delete('/api/students/:id', async (req, res) => {
+    try {
+        await Student.findByIdAndDelete(req.params.id);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-app.get('/', (req, res) => {
+// Catch-all to give index.html to the browser
+app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(3000, () => console.log('Server active on port 3000'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Server live on http://localhost:${PORT}`));

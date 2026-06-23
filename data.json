@@ -19,5 +19,18 @@
     "duesAmount": 3455,
     "duesStatus": "Pending",
     "messPlan": "Veg Only"
+  },
+  {
+    "id": 3,
+    "name": "Anakin Skywalker",
+    "email": "ali@gmail.com",
+    "phone": "03",
+    "major": "Computer Science",
+    "address": "karachi",
+    "room": "4",
+    "status": "Allocated",
+    "duesAmount": 884,
+    "duesStatus": "Pending",
+    "messPlan": "Veg Only"
   }
 ]
