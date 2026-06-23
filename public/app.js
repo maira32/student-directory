@@ -127,10 +127,10 @@ function renderGrid(data) {
                 </p>
             </div>
             <div class="card-actions">
-                <button onclick="toggleDues(${item.id})" class="btn-secondary">
+                <button onclick="toggleDues('${item.id}')" class="btn-secondary">
                     ${isPaid ? 'Mark Unpaid' : 'Mark Paid'}
                 </button>
-                <button onclick="removeItem(${item.id})" class="btn-delete">Checkout / Delete</button>
+                <button onclick="removeItem('${item.id}')" class="btn-delete">Checkout / Delete</button>
             </div>
         `;
         grid.appendChild(el);

@@ -5,7 +5,8 @@
     "email": "maira@gmail.com",
     "phone": "03200000000",
     "major": "Information Technology",
-    "address": "lahore"
+    "address": "lahore",
+    "duesStatus": "Paid"
   },
   {
     "id": 2,
@@ -17,20 +18,7 @@
     "room": "4",
     "status": "Vacating",
     "duesAmount": 3455,
-    "duesStatus": "Pending",
-    "messPlan": "Veg Only"
-  },
-  {
-    "id": 3,
-    "name": "Anakin Skywalker",
-    "email": "ali@gmail.com",
-    "phone": "03",
-    "major": "Computer Science",
-    "address": "karachi",
-    "room": "4",
-    "status": "Allocated",
-    "duesAmount": 884,
-    "duesStatus": "Pending",
+    "duesStatus": "Paid",
     "messPlan": "Veg Only"
   }
 ]
