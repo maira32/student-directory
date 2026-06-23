@@ -1,5 +1,3 @@
-const dns = require('dns');
-dns.setServers(['1.1.1.1', '8.8.8.8']);
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
@@ -14,13 +12,43 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 1. CONNECT TO MONGODB
-mongoose.connect(process.env.MONGODB_URI, {
-    family: 4,
-    serverSelectionTimeoutMS: 5000
-})
-  .then(() => console.log('🟢 MongoDB Atlas Connected Successfully!'))
-  .catch(err => console.error('🔴 MongoDB Connection Failed:', err));
+// ======================================================
+//    SERVERLESS MONGODB CONNECTION CACHING ENGINE
+// ======================================================
+let cachedDb = null;
+
+async function connectToDatabase() {
+    // 1. If AWS already warmed this container up, REUSE THE EXISTING TCP PIPE!
+    if (cachedDb && mongoose.connection.readyState === 1) {
+        return cachedDb;
+    }
+
+    console.log('=> Initializing Serverless MongoDB Connection...');
+    const db = await mongoose.connect(process.env.MONGODB_URI, {
+        family: 4,                      // The Silver Bullet: Forces standard IPv4 resolution inside AWS Lambda
+        serverSelectionTimeoutMS: 5000, // Fails cleanly in 5s if Atlas is blocked (prevents infinite hangs)
+        socketTimeoutMS: 45000          // Automatically snips dead idle sockets after 45s
+    });
+
+    cachedDb = db;
+    console.log('🟢 Serverless MongoDB Atlas Pipe Warmed & Ready!');
+    return cachedDb;
+}
+
+// 2. DATABASE GATEWAY GATEKEEPER
+// Intercepts API calls to ensure the DB pipe is alive before executing your code.
+app.use(async (req, res, next) => {
+    // Only wake up MongoDB for /api routes. Static files (CSS/JS) pass through untouched!
+    if (req.path.startsWith('/api')) {
+        try {
+            await connectToDatabase();
+        } catch (err) {
+            console.error('🔴 Database Gateway Timeout:', err);
+            return res.status(500).json({ error: 'Database connection failed to initialize.' });
+        }
+    }
+    next();
+});
 
 // ======================================================
 //                 BLUEPRINTS (SCHEMAS)
@@ -49,7 +77,6 @@ const Owner = mongoose.model('Owner', ownerSchema);
 
 // 2. STUDENT BLUEPRINT (With Owner Leash)
 const studentSchema = new mongoose.Schema({
-    // THE LEASH: Every student must belong to a specific Owner ID
     ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Owner', required: true },
     name: { type: String, required: true },
     email: { type: String, required: true },
@@ -77,17 +104,16 @@ const Student = mongoose.model('Student', studentSchema);
 // ======================================================
 //                 SECURITY MIDDLEWARE
 // ======================================================
-// The Club Bouncer: No digital wristband = No access to records.
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Extracts token from "Bearer <token>"
+    const token = authHeader && authHeader.split(' ')[1]; 
 
     if (!token) return res.status(401).json({ error: 'Access Denied: Please log in first.' });
 
     jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret_key', (err, decoded) => {
-        if (err) return res.status(403).json({ error: 'Session expired or invalid token.' });
-        req.ownerId = decoded.id; // Attach the verified Owner ID to the incoming request
-        next(); // Let them pass!
+        if (err) return res.status(403).json({ error: 'Session expired or invalid security token.' });
+        req.ownerId = decoded.id; 
+        next(); 
     });
 };
 
@@ -101,9 +127,8 @@ app.post('/api/auth/register', async (req, res) => {
         const { hostelName, ownerName, email, password } = req.body;
         
         const existing = await Owner.findOne({ email });
-        if (existing) return res.status(400).json({ error: 'Email already registered' });
+        if (existing) return res.status(400).json({ error: 'Email address already registered' });
 
-        // Scramble password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -115,8 +140,6 @@ app.post('/api/auth/register', async (req, res) => {
         });
 
         const saved = await newOwner.save();
-
-        // Print digital wristband valid for 7 days
         const token = jwt.sign({ id: saved._id }, process.env.JWT_SECRET || 'fallback_secret_key', { expiresIn: '7d' });
 
         res.status(201).json({ owner: saved, token });
@@ -147,7 +170,6 @@ app.post('/api/auth/login', async (req, res) => {
 // ======================================================
 //            STUDENT API ROUTES (SAAS ISOLATED)
 // ======================================================
-// Notice: Every route has "verifyToken" injected before the async function!
 
 // GET: Fetch ALL students belonging ONLY to logged-in owner
 app.get('/api/students', verifyToken, async (req, res) => {
@@ -164,7 +186,7 @@ app.post('/api/students', verifyToken, async (req, res) => {
     try {
         const newStudent = new Student({
             ...req.body,
-            ownerId: req.ownerId // Force attach the leash!
+            ownerId: req.ownerId 
         });
         const saved = await newStudent.save();
         res.status(201).json(saved);
@@ -173,11 +195,11 @@ app.post('/api/students', verifyToken, async (req, res) => {
     }
 });
 
-// PATCH: Toggle Dues
+// PATCH: Toggle Dues Status
 app.patch('/api/students/:id/dues', verifyToken, async (req, res) => {
     try {
         const student = await Student.findOne({ _id: req.params.id, ownerId: req.ownerId });
-        if (!student) return res.status(404).json({ error: 'Student not found or unauthorized' });
+        if (!student) return res.status(404).json({ error: 'Student record not found' });
 
         student.duesStatus = student.duesStatus === 'Paid' ? 'Pending' : 'Paid';
         await student.save();
@@ -187,30 +209,30 @@ app.patch('/api/students/:id/dues', verifyToken, async (req, res) => {
     }
 });
 
-// DELETE: Remove student
+// DELETE: Checkout / Remove student
 app.delete('/api/students/:id', verifyToken, async (req, res) => {
     try {
         const deleted = await Student.findOneAndDelete({ _id: req.params.id, ownerId: req.ownerId });
-        if (!deleted) return res.status(404).json({ error: 'Student not found or unauthorized' });
+        if (!deleted) return res.status(404).json({ error: 'Student record not found' });
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// Catch-all
+// Catch-all single page application routing
 app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// ======================================================
+//                 SERVER ENTRYPOINT
+// ======================================================
 const PORT = process.env.PORT || 3000;
 
-// Only listen to Port 3000 if running locally in your terminal.
-// If Vercel is importing this file in the cloud, skip app.listen!
+// Only bind to local port if running in terminal. Skip if Vercel serverless import!
 if (require.main === module) {
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`🚀 Server live on http://localhost:${PORT}`));
+    app.listen(PORT, () => console.log(`🚀 Local Server live on http://localhost:${PORT}`));
 }
 
-module.exports = app;
 module.exports = app;
