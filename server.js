@@ -13,11 +13,8 @@ const cors = require('cors');
 const app = express();
 
 app.use(cors({
-    origin: [
-        'http://localhost:3000',
-        'http://localhost:5500',   // if you use Live Server
-        'https://student-directory-nu.vercel.app/',  // ← replace with your actual URL
-    ],
+    origin: '*', // Allows any origin to talk to your API
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true
 }));
 
