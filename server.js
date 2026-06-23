@@ -95,7 +95,9 @@ app.post('/api/auth/register', async (req, res) => {
         const existing = await Owner.findOne({ email });
         if (existing) return res.status(400).json({ error: 'Email already registered' });
 
-        const salt = await bcrypt.genSalt(10);
+        // Change your bcrypt line to this:
+        const saltRounds = process.env.NODE_ENV === 'production' ? 8 : 10;
+        const salt = await bcrypt.genSalt(saltRounds);
         const hashedPassword = await bcrypt.hash(password, salt);
         const newOwner = new Owner({ hostelName, ownerName, email, password: hashedPassword });
         const saved = await newOwner.save();

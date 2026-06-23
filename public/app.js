@@ -111,6 +111,12 @@ loginForm.addEventListener('submit', async (e) => {
 // REGISTER
 registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    // 1. DISABLE BUTTON IMMEDIATELY
+    const submitBtn = registerForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Registering...';
+
     const hostelName = document.getElementById('regHostelName').value;
     const ownerName = document.getElementById('regOwnerName').value;
     const email = document.getElementById('regEmail').value;
@@ -135,6 +141,8 @@ registerForm.addEventListener('submit', async (e) => {
         checkAuth();
     } catch (err) {
         showToast('Registration failed', 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'REGISTER';
     }
 });
 
