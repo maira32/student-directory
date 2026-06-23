@@ -7,6 +7,14 @@ const jwt = require('jsonwebtoken');
 
 dotenv.config();
 
+console.log("Checking Environment Variables...");
+console.log("MONGODB_URI exists:", !!process.env.MONGODB_URI);
+console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
+
+if (!process.env.MONGODB_URI) {
+    throw new Error("CRITICAL: MONGODB_URI is missing in Vercel!");
+}
+
 const cors = require('cors');
 
 
